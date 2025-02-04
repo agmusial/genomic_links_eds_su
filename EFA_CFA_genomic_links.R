@@ -1,7 +1,7 @@
 ######
 # Genomic links project: ED/suicide EFA & CFA
 # Aga
-# 08/07/24
+# 03/12/24
 ######
 
 # ================================================== Load packages ====================
@@ -17,7 +17,7 @@ setwd("~/King's College London/")
 
 # =============== Scale-level data ==========
 # ================================================== Load data with overall scales ====================
-data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/GWSEM_project/master_data/master_data_scaled.rds")
+data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_scaled.rds")
 names(data)
 
 # ================================================== 70/30 sample split ====================
@@ -69,11 +69,11 @@ lpgm2$value_lab<-sprintf('%.2f',lpgm2$value)
 
 lpgm2$Var1 <- factor(lpgm2$Var1, levels = c("an.total_score", "bn.total_score", "bed.total_score", "taf.worth_living_life_thoughts", 
                                             "taf.have_you_contemplated_harming_yourself_", "taf.meant_end_life_pandemic"),
-                     labels = c("AN total score", "BN total score", "BED total score", "TAF item 1", "TAF item 2", "TAF item 3"))
+                     labels = c("AN symptom score", "BN symptom score", "BED symptom score", "TAF item 1", "TAF item 2", "TAF item 3"))
 
 lpgm2$Var2 <- factor(lpgm2$Var2, levels = c("an.total_score", "bn.total_score", "bed.total_score", "taf.worth_living_life_thoughts", 
                                             "taf.have_you_contemplated_harming_yourself_", "taf.meant_end_life_pandemic"),
-                     labels = c("AN total score", "BN total score", "BED total score", "TAF item 1", "TAF item 2", "TAF item 3"))
+                     labels = c("AN symptom score", "BN symptom score", "BED symptom score", "TAF item 1", "TAF item 2", "TAF item 3"))
 
 p <- ggplot(lpgm2, aes(Var2, Var1, fill = value, label=value_lab)) + 
   geom_tile()+ 
@@ -85,11 +85,11 @@ p <- ggplot(lpgm2, aes(Var2, Var1, fill = value, label=value_lab)) +
   ggtitle('')+
   labs(fill = "Correlation coefficient")+
   theme(
-    text = element_text(size = 15),
-    axis.text = element_text(size = 15, colour="black"),
+    text = element_text(size = 10),
+    axis.text = element_text(size = 10, colour="black"),
     axis.text.x = element_text(angle = 45, vjust = 1, hjust= 1),
-    legend.title=element_text(size=15),
-    legend.text=element_text(size=15, vjust = 1),
+    legend.title=element_text(size=10),
+    legend.text=element_text(size=10, vjust = 1),
     legend.position = "right",
     axis.ticks = element_blank(),
     plot.title = element_text(lineheight=.8, size = 10),
@@ -163,7 +163,7 @@ data_sel <- train_data[, c(# EDs
   "taf.meant_end_life_pandemic",
   
   # Psychopathology
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score")]
 
 ## Complete cases
@@ -184,9 +184,17 @@ lpgm2<-melt(corr)
 lpgm2<-data.frame(lpgm2[!is.na(lpgm2[,3]),]) # get rid of the NA matrix entries
 lpgm2$value_lab<-sprintf('%.2f',lpgm2$value)
 
+lpgm2$Var1 <- factor(lpgm2$Var1, levels = c("an.total_score", "bn.total_score", "bed.total_score", "taf.worth_living_life_thoughts", 
+                                            "taf.have_you_contemplated_harming_yourself_", "taf.meant_end_life_pandemic", "phq8.total_score", "gad7.total_score"),
+                     labels = c("AN symptom score", "BN symptom score", "BED symptom score", "TAF item 1", "TAF item 2", "TAF item 3", "PHQ-8", "GAD-7"))
+
+lpgm2$Var2 <- factor(lpgm2$Var2, levels = c("an.total_score", "bn.total_score", "bed.total_score", "taf.worth_living_life_thoughts", 
+                                            "taf.have_you_contemplated_harming_yourself_", "taf.meant_end_life_pandemic", "phq8.total_score", "gad7.total_score"),
+                     labels = c("AN symptom score", "BN symptom score", "BED symptom score", "TAF item 1", "TAF item 2", "TAF item 3", "PHQ-8", "GAD-7"))
+
 p <- ggplot(lpgm2, aes(Var2, Var1, fill = value, label=value_lab)) + 
   geom_tile()+ 
-  geom_text(aes(label = round(value, 2)), size = 6) +
+  geom_text(aes(label = round(value, 2)), size = 4) +
   scale_fill_gradient2(low="red", mid="lightblue", high="slateblue4", 
                        midpoint=0, limits=range(-1,1))+
   xlab('')+
@@ -194,11 +202,11 @@ p <- ggplot(lpgm2, aes(Var2, Var1, fill = value, label=value_lab)) +
   ggtitle('')+
   labs(fill = "Correlation coefficient")+
   theme(
-    text = element_text(size = 15),
-    axis.text = element_text(size = 15, colour="black"),
+    text = element_text(size = 10),
+    axis.text = element_text(size = 10, colour="black"),
     axis.text.x = element_text(angle = 45, vjust = 1, hjust= 1),
-    legend.title=element_text(size=15),
-    legend.text=element_text(size=15, vjust = 1),
+    legend.title=element_text(size=10),
+    legend.text=element_text(size=10, vjust = 1),
     legend.position = "right",
     axis.ticks = element_blank(),
     plot.title = element_text(lineheight=.8, size = 10),
@@ -232,7 +240,7 @@ fa.diagram(EFA_model, size = c(50,50))
 
 # ================================================== CFA EDs & TAF & Psychopathology Full sample ====================
 ## Specify lavaan model
-cfa <- ' F1 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+cfa <- ' F1 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
                F2 =~ an.total_score + bn.total_score + bed.total_score'
 
 ## Fit the CFA model
@@ -385,7 +393,7 @@ data <- train_data_no_diag[, c(# EDs
   "taf.meant_end_life_pandemic",
   
   # Psychopathology
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score")]
 
 ## Complete cases
@@ -456,7 +464,7 @@ fa.diagram(EFA_model, size = c(50,50))
 # ================================================== CFA EDs & TAF & Psychopathology No mental health diagnoses ====================
 ## Specify lavaan model
 cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score
-               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score'
+               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score'
 
 ## Fit the CFA model
 fit <- cfa(cfa, data = test_data_no_diag,
