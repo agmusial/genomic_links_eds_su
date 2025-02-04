@@ -1,7 +1,7 @@
 ######
 # Genomic links project: ED/suicide CFA theory-driven models 
 # Aga
-# 08/07/24
+# 04/12/24
 ######
 
 # ================================================== Load packages ====================
@@ -17,7 +17,7 @@ setwd("~/King's College London/")
 
 # =============== Scale-level data ==========
 # ================================================== Load data with overall scales ====================
-all_data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/GWSEM_project/master_data/master_data_scaled.rds")
+all_data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_scaled.rds")
 names(all_data)
 
 # =============== EDs & TAF Full sample ==========
@@ -97,7 +97,7 @@ data <- all_data[, c(# EDs
   "bed.total_score", 
   
   # Ppy
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score",
   
   # TAF
@@ -110,7 +110,7 @@ data <- scale(data); data <- data.frame(data)
 
 ## Specify lavaan model
 cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score
-               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
          Fgeneral =~ F1 + F2 '
 
 ## Fit the CFA model
@@ -133,7 +133,7 @@ data <- all_data[, c(# EDs
   "bed.total_score", 
   
   # Ppy
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score",
   
   # TAF
@@ -145,12 +145,51 @@ data <- all_data[, c(# EDs
 data <- scale(data); data <- data.frame(data)
 
 ## Specify lavaan model
-cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score + taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score + taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
          EDs =~ an.total_score + bn.total_score + bed.total_score
-         SU =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+         SU =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
 F1 ~~ 0*EDs
   F1 ~~ 0*SU
   EDs ~~ 0*SU'
+
+## Fit the CFA model
+fit <- cfa(cfa, data = data,
+           missing = "fiml")
+
+## Explore the fit
+fit_sum <- summary(fit, fit.measures=TRUE)
+fit_sum$FIT
+
+# Visualize the model
+semPaths(fit, edge.color="black", color = c("lightblue"),
+         intercepts = FALSE, what = "std")
+
+# ================================================== Three-factor model ====================
+## Select vars
+data <- all_data[, c(# EDs
+  "an.total_score", 
+  "bn.total_score", 
+  "bed.total_score", 
+  
+  # Ppy
+  "phq8.total_score",
+  "gad7.total_score",
+  
+  # TAF
+  "taf.worth_living_life_thoughts",
+  "taf.have_you_contemplated_harming_yourself_",
+  "taf.meant_end_life_pandemic")]
+
+## Scale data
+data <- scale(data); data <- data.frame(data)
+
+## Specify lavaan model
+cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score
+         F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic
+         F3 =~ phq8.total_score + gad7.total_score
+         F1 ~~ F2
+         F2 ~~ F3
+         F1 ~~ F3'
 
 ## Fit the CFA model
 fit <- cfa(cfa, data = data,
@@ -243,7 +282,7 @@ data <- data_no_diag[, c(# EDs
   "bed.total_score", 
   
   # Ppy
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score",
   
   # TAF
@@ -256,7 +295,7 @@ data <- scale(data); data <- data.frame(data)
 
 ## Specify lavaan model
 cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score
-               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+               F2 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
          Fgeneral =~ F1 + F2 '
 
 ## Fit the CFA model
@@ -279,7 +318,7 @@ data <- data_no_diag[, c(# EDs
   "bed.total_score", 
   
   # Ppy
-  "phq9.total_score",
+  "phq8.total_score",
   "gad7.total_score",
   
   # TAF
@@ -291,9 +330,9 @@ data <- data_no_diag[, c(# EDs
 data <- scale(data); data <- data.frame(data)
 
 ## Specify lavaan model
-cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score + taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score
+cfa <- ' F1 =~ an.total_score + bn.total_score + bed.total_score + taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score
          EDs =~ an.total_score + bn.total_score + bed.total_score
-         SU =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq9.total_score + gad7.total_score '
+         SU =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic + phq8.total_score + gad7.total_score '
 
 ## Fit the CFA model
 fit <- cfa(cfa, data = data,
@@ -309,7 +348,7 @@ semPaths(fit, edge.color="black", color = c("lightblue"),
 
 # =============== Item-level data ==========
 # ================================================== Load data with items ====================
-all_data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/GWSEM_project/master_data/master_data_scaled.rds")
+all_data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_scaled.rds")
 names(all_data)
 
 # =============== EDs & TAF Full sample ==========
@@ -431,6 +470,54 @@ fit_sum$FIT
 # Visualize the model
 semPaths(fit, edge.color="black", color = c("lightblue"),
          intercepts = FALSE, what = "std")
+
+# ================================================== Four-factor model ====================
+## Select vars
+data <- all_data[, c(# EDs
+  "an.lowest_weight_people_thought", 
+  "an.gain_weight_afraid_fat", "an.not_at_all_dependentcompletely_dependent", 
+  "an.health_low_weightbmi_negative", "an.feel_fat_time_low", "an.people_thought_larger_parts", 
+  "icb.weight_control", "icb.lowest_weight_control_shape", "icb.compensate", 
+  "icb.exercise", "be.ate_regard_short_period", "be.regularly_occurring_episodes_binge", 
+  "be.feel_distressed_overeating_episodes", "be.not_at_all_dependentcompletely_dependent", 
+  "be.regularly_occurring_overeating_episodes", "be.binge_eating_distressed_make", 
+  "be.during_binges", 
+  
+  # TAF
+  "taf.worth_living_life_thoughts",
+  "taf.have_you_contemplated_harming_yourself_",
+  "taf.meant_end_life_pandemic")]
+
+## Scale data
+data <- scale(data); data <- data.frame(data)
+
+## Specify lavaan model
+cfa <- ' F1 =~ an.lowest_weight_people_thought + an.gain_weight_afraid_fat + an.not_at_all_dependentcompletely_dependent + an.health_low_weightbmi_negative + an.feel_fat_time_low + an.people_thought_larger_parts
+         F2 =~ icb.weight_control + icb.lowest_weight_control_shape + icb.compensate + icb.exercise 
+         F3 =~ be.ate_regard_short_period + be.regularly_occurring_episodes_binge + be.feel_distressed_overeating_episodes + be.not_at_all_dependentcompletely_dependent + be.regularly_occurring_overeating_episodes + be.binge_eating_distressed_make + be.during_binges 
+         F4 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic
+         
+         F1 ~~ F2
+         F1 ~~ F3
+         F1 ~~ F4
+         
+         F2 ~~ F3
+         F2 ~~ F4
+         
+         F3 ~~ F4'
+
+## Fit the CFA model
+fit <- cfa(cfa, data = data,
+           missing = "fiml", )
+
+## Explore the fit
+fit_sum <- summary(fit, fit.measures=TRUE, standardized=T)
+fit_sum$FIT
+
+# Visualize the model
+semPaths(fit, edge.color="black", color = c("lightblue"),
+         intercepts = FALSE, what = "std")
+
 
 # =============== EDs & TAF no MH diag ==========
 # ================================================== Hierarchical model ====================
