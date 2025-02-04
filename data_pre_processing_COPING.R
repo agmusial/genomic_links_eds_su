@@ -1,7 +1,7 @@
 ######
 # Genomic links project: ED/suicide data pre-processing
 # Aga
-# 08/07/24
+# 03/12/24
 ######
 
 # ========================= Load packages ====================
@@ -335,23 +335,23 @@ coping_glad_EDs$cohort <- "coping_glad"
 
 # ================= Psychopathology ==========
 # ========== Read psychopathology data and inspect ==========
-coping_glad_phq9 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq_coping_glad.rds")
+coping_glad_phq8 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq_coping_glad.rds")
 coping_glad_gad7 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Anx/gad7_coping_glad.rds")
 
-names(coping_glad_phq9)
+names(coping_glad_phq8)
 names(coping_glad_gad7)
 
 # ========== Identify duplicates ==========
-dup_coping_glad_phq9 <- duplicated(coping_glad_phq9$externalDataReference); table(dup_coping_glad_phq9)
+dup_coping_glad_phq8 <- duplicated(coping_glad_phq8$externalDataReference); table(dup_coping_glad_phq8)
 dup_coping_glad_gad7 <- duplicated(coping_glad_gad7$externalDataReference); table(dup_coping_glad_gad7)
 
 # ========== Remove duplicated and incomplete IDs ==========
-coping_glad_phq9 <- remove_duplicates(coping_glad_phq9, "externalDataReference", date_col = "endDate"); table(duplicated(coping_glad_phq9$externalDataReference))
+coping_glad_phq8 <- remove_duplicates(coping_glad_phq8, "externalDataReference", date_col = "endDate"); table(duplicated(coping_glad_phq8$externalDataReference))
 coping_glad_gad7 <- remove_duplicates(coping_glad_gad7, "externalDataReference", date_col = "endDate"); table(duplicated(coping_glad_gad7$externalDataReference))
 
 # ========== Select items ==========
 ## Depression
-coping_glad_phq9 <- coping_glad_phq9[, c("externalDataReference", 
+coping_glad_phq8 <- coping_glad_phq8[, c("externalDataReference", 
                                          "phq9.little_interest_or_pleasure_in_doing_things", 
                                          "phq9.feeling_down_depressed_or_hopeless", 
                                          "phq9.staying_asleep_sleeping_trouble", 
@@ -359,8 +359,7 @@ coping_glad_phq9 <- coping_glad_phq9[, c("externalDataReference",
                                          "phq9.poor_appetite_or_overeating", 
                                          "phq9.feeling_bad_failure_family", 
                                          "phq9.trouble_concentrating_newspaper_reading", 
-                                         "phq9.moving_fidgety_opposite_slowly", 
-                                         "phq9.dead_hurting_thoughts")]
+                                         "phq9.moving_fidgety_opposite_slowly")]
 
 ## Anxiety
 coping_glad_gad7 <- coping_glad_gad7[, c("externalDataReference", 
@@ -375,7 +374,7 @@ coping_glad_gad7 <- coping_glad_gad7[, c("externalDataReference",
 # ========== Data properties ==========
 ## Structure and recode items, discarding responses like "Don't know"/"Prefer not to say", which are coded -777/-88
 # Filter data to retain only columns with values >= 0
-coping_glad_phq9 <- coping_glad_phq9 %>%
+coping_glad_phq8 <- coping_glad_phq8 %>%
   mutate_all(~ ifelse(. < 0, NA, .))
 
 coping_glad_gad7 <- coping_glad_gad7 %>%
@@ -383,14 +382,14 @@ coping_glad_gad7 <- coping_glad_gad7 %>%
 
 # ========== Create overall symptom scales ==========
 ## Variables
-# PHQ9
-coping_glad_phq9$phq9.total_score <- my_rowSums(coping_glad_phq9[,2:10])
+# PHQ8
+coping_glad_phq8$phq8.total_score <- my_rowSums(coping_glad_phq8[,2:9])
 
 # GAD7
 coping_glad_gad7$gad7.total_score <- my_rowSums(coping_glad_gad7[,2:8])
 
 # ========== Unify variables and variable names across datasets: match to var names in glad ==========
-coping_glad_phq9 <- coping_glad_phq9[, c("externalDataReference", 
+coping_glad_phq8 <- coping_glad_phq8[, c("externalDataReference", 
                                          "phq9.little_interest_or_pleasure_in_doing_things", 
                                          "phq9.feeling_down_depressed_or_hopeless", 
                                          "phq9.staying_asleep_sleeping_trouble", 
@@ -399,8 +398,7 @@ coping_glad_phq9 <- coping_glad_phq9[, c("externalDataReference",
                                          "phq9.feeling_bad_failure_family", 
                                          "phq9.trouble_concentrating_newspaper_reading", 
                                          "phq9.moving_fidgety_opposite_slowly", 
-                                         "phq9.dead_hurting_thoughts",
-                                         "phq9.total_score")]; names(coping_glad_phq9) <- c("IID",
+                                         "phq8.total_score")]; names(coping_glad_phq8) <- c("IID",
                                                                                                       "phq9.little_interest_or_pleasure_in_doing_things", 
                                                                                                       "phq9.feeling_down_depressed_or_hopeless", 
                                                                                                       "phq9.staying_asleep_sleeping_trouble", 
@@ -409,8 +407,7 @@ coping_glad_phq9 <- coping_glad_phq9[, c("externalDataReference",
                                                                                                       "phq9.feeling_bad_failure_family", 
                                                                                                       "phq9.watching_television_trouble_concentrating", 
                                                                                                       "phq9.moving_fidgety_noticed_opposite", 
-                                                                                                      "phq9.dead_hurting_thoughts",
-                                                                                            "phq9.total_score")
+                                                                                            "phq8.total_score")
 
 
 coping_glad_gad7 <- coping_glad_gad7[, c("externalDataReference", 
@@ -434,7 +431,7 @@ coping_glad_gad7 <- coping_glad_gad7[, c("externalDataReference",
 
 # ========== Combine and add cohort name ==========
 ## Merge data
-coping_glad_psychopathology <- merge(coping_glad_phq9, coping_glad_gad7, by = "IID", all = TRUE)
+coping_glad_psychopathology <- merge(coping_glad_phq8, coping_glad_gad7, by = "IID", all = TRUE)
 
 ## Add cohort
 coping_glad_psychopathology$cohort <- "coping_glad"
@@ -775,23 +772,23 @@ edgi_EDs$cohort <- "coping_edgi" # it's really EDGI sign-up but naming coping_ed
 
 # ================= Psychopathology ==========
 # ========== Read psychopathology data and inspect ==========
-coping_edgi_phq9 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq_coping_edgi.rds")
+coping_edgi_phq8 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq_coping_edgi.rds")
 coping_edgi_gad7 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Anx/gad7_coping_edgi.rds")
 
-names(coping_edgi_phq9)
+names(coping_edgi_phq8)
 names(coping_edgi_gad7)
 
 # ========== Identify duplicates ==========
-dup_coping_edgi_phq9 <- duplicated(coping_edgi_phq9$externalDataReference); table(dup_coping_edgi_phq9)
+dup_coping_edgi_phq8 <- duplicated(coping_edgi_phq8$externalDataReference); table(dup_coping_edgi_phq8)
 dup_coping_edgi_gad7 <- duplicated(coping_edgi_gad7$externalDataReference); table(dup_coping_edgi_gad7)
 
 # ========== Remove duplicated and incomplete IDs ==========
-coping_edgi_phq9 <- remove_duplicates(coping_edgi_phq9, "externalDataReference", date_col = "endDate"); table(duplicated(coping_edgi_phq9$externalDataReference))
+coping_edgi_phq8 <- remove_duplicates(coping_edgi_phq8, "externalDataReference", date_col = "endDate"); table(duplicated(coping_edgi_phq8$externalDataReference))
 coping_edgi_gad7 <- remove_duplicates(coping_edgi_gad7, "externalDataReference", date_col = "endDate"); table(duplicated(coping_edgi_gad7$externalDataReference))
 
 # ========== Select items ==========
 ## Depression
-coping_edgi_phq9 <- coping_edgi_phq9[, c("externalDataReference", 
+coping_edgi_phq8 <- coping_edgi_phq8[, c("externalDataReference", 
                                          "phq9.little_interest_or_pleasure_in_doing_things", 
                                          "phq9.feeling_down_depressed_or_hopeless", 
                                          "phq9.staying_asleep_sleeping_trouble", 
@@ -799,8 +796,7 @@ coping_edgi_phq9 <- coping_edgi_phq9[, c("externalDataReference",
                                          "phq9.poor_appetite_or_overeating", 
                                          "phq9.feeling_bad_failure_family", 
                                          "phq9.trouble_concentrating_reading_newspaper", 
-                                         "phq9.moving_fidgety_noticed_opposite", 
-                                         "phq9.dead_hurting_thoughts")]
+                                         "phq9.moving_fidgety_noticed_opposite")]
 
 ## Anxiety
 coping_edgi_gad7 <- coping_edgi_gad7[, c("externalDataReference", 
@@ -815,7 +811,7 @@ coping_edgi_gad7 <- coping_edgi_gad7[, c("externalDataReference",
 # ========== Data properties ==========
 ## Structure and recode items, discarding responses like "Don't know"/"Prefer not to say", which are coded -777/-88
 # Filter data to retain only columns with values >= 0
-coping_edgi_phq9 <- coping_edgi_phq9 %>%
+coping_edgi_phq8 <- coping_edgi_phq8 %>%
   mutate_all(~ ifelse(. < 0, NA, .))
 
 coping_edgi_gad7 <- coping_edgi_gad7 %>%
@@ -823,14 +819,14 @@ coping_edgi_gad7 <- coping_edgi_gad7 %>%
 
 # ========== Create overall symptom scales ==========
 ## Variables
-# PHQ9
-coping_edgi_phq9$phq9.total_score <- my_rowSums(coping_edgi_phq9[,2:10])
+# PHQ8
+coping_edgi_phq8$phq8.total_score <- my_rowSums(coping_edgi_phq8[,2:9])
 
 # GAD7
 coping_edgi_gad7$gad7.total_score <- my_rowSums(coping_edgi_gad7[,2:8])
 
 # ========== Unify variables and variable names across datasets: match to var names in glad ==========
-coping_edgi_phq9 <- coping_edgi_phq9[, c("externalDataReference", 
+coping_edgi_phq8 <- coping_edgi_phq8[, c("externalDataReference", 
                                          "phq9.little_interest_or_pleasure_in_doing_things", 
                                          "phq9.feeling_down_depressed_or_hopeless", 
                                          "phq9.staying_asleep_sleeping_trouble", 
@@ -839,8 +835,7 @@ coping_edgi_phq9 <- coping_edgi_phq9[, c("externalDataReference",
                                          "phq9.feeling_bad_failure_family", 
                                          "phq9.trouble_concentrating_reading_newspaper", 
                                          "phq9.moving_fidgety_noticed_opposite", 
-                                         "phq9.dead_hurting_thoughts",
-                                         "phq9.total_score")]; names(coping_edgi_phq9) <- c("IID",
+                                         "phq8.total_score")]; names(coping_edgi_phq8) <- c("IID",
                                                                                                       "phq9.little_interest_or_pleasure_in_doing_things", 
                                                                                                       "phq9.feeling_down_depressed_or_hopeless", 
                                                                                                       "phq9.staying_asleep_sleeping_trouble", 
@@ -849,8 +844,7 @@ coping_edgi_phq9 <- coping_edgi_phq9[, c("externalDataReference",
                                                                                                       "phq9.feeling_bad_failure_family", 
                                                                                                       "phq9.watching_television_trouble_concentrating", 
                                                                                                       "phq9.moving_fidgety_noticed_opposite", 
-                                                                                                      "phq9.dead_hurting_thoughts",
-                                                                                            "phq9.total_score")
+                                                                                            "phq8.total_score")
 
 
 coping_edgi_gad7 <- coping_edgi_gad7[, c("externalDataReference", 
@@ -874,7 +868,7 @@ coping_edgi_gad7 <- coping_edgi_gad7[, c("externalDataReference",
 
 # ========== Combine and add cohort name ==========
 ## Merge data
-coping_edgi_psychopathology <- merge(coping_edgi_phq9, coping_edgi_gad7, by = "IID", all = TRUE)
+coping_edgi_psychopathology <- merge(coping_edgi_phq8, coping_edgi_gad7, by = "IID", all = TRUE)
 
 ## Add cohort
 coping_edgi_psychopathology$cohort <- "coping_edgi"
@@ -1224,23 +1218,23 @@ coping_nbr_EDs$cohort <- "coping_nbr"
 
 # ================= Psychopathology ==========
 # ========== Read psychopathology data and inspect ==========
-coping_nbr_phq9 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq9_coping_nbr.rds")
+coping_nbr_phq8 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Depr/phq9_coping_nbr.rds")
 coping_nbr_gad7 <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/data_raw/Anx/gad7_coping_nbr.rds")
 
-names(coping_nbr_phq9)
+names(coping_nbr_phq8)
 names(coping_nbr_gad7)
 
 # ========== Identify duplicates ==========
-dup_coping_nbr_phq9 <- duplicated(coping_nbr_phq9$subjectid); table(dup_coping_nbr_phq9)
+dup_coping_nbr_phq8 <- duplicated(coping_nbr_phq8$subjectid); table(dup_coping_nbr_phq8)
 dup_coping_nbr_gad7 <- duplicated(coping_nbr_gad7$subjectid); table(dup_coping_nbr_gad7)
 
 # ========== Remove duplicated and incomplete IDs ==========
-coping_nbr_phq9 <- remove_duplicates(coping_nbr_phq9, "subjectid", date_col = "endDate"); table(duplicated(coping_nbr_phq9$subjectid))
+coping_nbr_phq8 <- remove_duplicates(coping_nbr_phq8, "subjectid", date_col = "endDate"); table(duplicated(coping_nbr_phq8$subjectid))
 coping_nbr_gad7 <- remove_duplicates(coping_nbr_gad7, "subjectid", date_col = "endDate"); table(duplicated(coping_nbr_gad7$subjectid))
 
 # ========== Select items ==========
 ## Depression
-coping_nbr_phq9 <- coping_nbr_phq9[, c("subjectid", 
+coping_nbr_phq8 <- coping_nbr_phq8[, c("subjectid", 
                                        "phq9.little_interest_or_pleasure_in_doing_things", 
                                        "phq9.feeling_down_depressed_or_hopeless", 
                                        "phq9.staying_asleep_sleeping_trouble", 
@@ -1248,8 +1242,7 @@ coping_nbr_phq9 <- coping_nbr_phq9[, c("subjectid",
                                        "phq9.poor_appetite_or_overeating", 
                                        "phq9.feeling_bad_failure_family", 
                                        "phq9.trouble_concentrating_reading_newspaper", 
-                                       "phq9.moving_fidgety_noticed_opposite", 
-                                       "phq9.dead_hurting_thoughts")]
+                                       "phq9.moving_fidgety_noticed_opposite")]
 
 ## Anxiety
 coping_nbr_gad7 <- coping_nbr_gad7[, c("subjectid", 
@@ -1264,7 +1257,7 @@ coping_nbr_gad7 <- coping_nbr_gad7[, c("subjectid",
 # ========== Data properties ==========
 ## Structure and recode items, discarding responses like "Don't know"/"Prefer not to say", which are coded -777/-88
 # Filter data to retain only columns with values >= 0
-coping_nbr_phq9 <- coping_nbr_phq9 %>%
+coping_nbr_phq8 <- coping_nbr_phq8 %>%
   mutate_all(~ ifelse(. < 0, NA, .))
 
 coping_nbr_gad7 <- coping_nbr_gad7 %>%
@@ -1272,14 +1265,14 @@ coping_nbr_gad7 <- coping_nbr_gad7 %>%
 
 # ========== Create overall symptom scales ==========
 ## Variables
-# PHQ9
-coping_nbr_phq9$phq9.total_score <- my_rowSums(coping_nbr_phq9[,2:10])
+# PHQ8
+coping_nbr_phq8$phq8.total_score <- my_rowSums(coping_nbr_phq8[,2:9])
 
 # GAD7
 coping_nbr_gad7$gad7.total_score <- my_rowSums(coping_nbr_gad7[,2:8])
 
 # ========== Unify variables and variable names across datasets: match to var names in glad ==========
-coping_nbr_phq9 <- coping_nbr_phq9[, c("subjectid", 
+coping_nbr_phq8 <- coping_nbr_phq8[, c("subjectid", 
                                        "phq9.little_interest_or_pleasure_in_doing_things", 
                                        "phq9.feeling_down_depressed_or_hopeless", 
                                        "phq9.staying_asleep_sleeping_trouble", 
@@ -1288,8 +1281,7 @@ coping_nbr_phq9 <- coping_nbr_phq9[, c("subjectid",
                                        "phq9.feeling_bad_failure_family", 
                                        "phq9.trouble_concentrating_reading_newspaper", 
                                        "phq9.moving_fidgety_noticed_opposite", 
-                                       "phq9.dead_hurting_thoughts",
-                                       "phq9.total_score")]; names(coping_nbr_phq9) <- c("IID",
+                                       "phq8.total_score")]; names(coping_nbr_phq8) <- c("IID",
                                                                                                    "phq9.little_interest_or_pleasure_in_doing_things", 
                                                                                                    "phq9.feeling_down_depressed_or_hopeless", 
                                                                                                    "phq9.staying_asleep_sleeping_trouble", 
@@ -1298,8 +1290,7 @@ coping_nbr_phq9 <- coping_nbr_phq9[, c("subjectid",
                                                                                                    "phq9.feeling_bad_failure_family", 
                                                                                                    "phq9.watching_television_trouble_concentrating", 
                                                                                                    "phq9.moving_fidgety_noticed_opposite", 
-                                                                                                   "phq9.dead_hurting_thoughts",
-                                                                                         "phq9.total_score")
+                                                                                         "phq8.total_score")
 
 
 coping_nbr_gad7 <- coping_nbr_gad7[, c("subjectid", 
@@ -1323,7 +1314,7 @@ coping_nbr_gad7 <- coping_nbr_gad7[, c("subjectid",
 
 # ========== Combine and add cohort name ==========
 ## Merge data
-coping_nbr_psychopathology <- merge(coping_nbr_phq9, coping_nbr_gad7, by = "IID", all = TRUE)
+coping_nbr_psychopathology <- merge(coping_nbr_phq8, coping_nbr_gad7, by = "IID", all = TRUE)
 
 ## Add cohort
 coping_nbr_psychopathology$cohort <- "coping_nbr"
@@ -1471,11 +1462,11 @@ table(duplicated(master_data$IID))
 
 ## ED and SU row sums
 master_data$ED_sums <- my_rowSums(master_data[, c(16, 21, 29)])
-master_data$SU_sums <- my_rowSums(master_data[, 58:60])
+master_data$SU_sums <- my_rowSums(master_data[, 57:59])
 
 ## Scale data
 master_data_scaled <- master_data
-master_data_scaled[, c(10:47, 58:60)] <- scale(master_data_scaled[, c(10:47, 58:60)])
+master_data_scaled[, c(10:46, 57:59)] <- scale(master_data_scaled[, c(10:46, 57:59)])
 
 # ========================= Check N with genotypes ==========
 ## Load the fam file
@@ -1510,7 +1501,7 @@ table(dat_comp$dem.what_is_your_ethnic_origin)
 
 ## Diagnoses
 # MDD and GAD
-dat_comp <- merge(dat_comp, master_common[, c(1, 48:57)], by = "IID")
+dat_comp <- merge(dat_comp, master_common[, c(1, 47:56)], by = "IID")
 table(dat_comp$mhd.gad | dat_comp$mhd.mdd)
 mdd_not_gad <- subset(dat_comp, mhd.mdd == 1 & mhd.gad != 1)
 table(mdd_not_gad$mhd.mdd)
@@ -1563,8 +1554,8 @@ both_bn_bed <- subset(dat_comp, mhd.bn == 1 & mhd.bed == 1)
 table(both_bn_bed$V5)
 
 # ========================= Write out data ==========
-saveRDS(master_data, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/master_data.rds")
-saveRDS(master_data_scaled, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/master_data_scaled.rds")
-saveRDS(master_common, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/master_data_geno.rds")
+saveRDS(master_data, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8.rds")
+saveRDS(master_data_scaled, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_scaled.rds")
+saveRDS(master_common, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_geno.rds")
 
 
