@@ -1,7 +1,7 @@
 ######
 # Genomic links project: pheno prep
 # Aga
-# 22/04/24
+# 06/12/24
 ######
 
 # ================================================== Load packages ====================
@@ -17,7 +17,7 @@ setwd("~/King's College London/")
 
 # =============== Scale-level data ==========
 # ================================================== Load data with overall scales ====================
-data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/master_data_scaled.rds")
+data <- readRDS("./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/1st revision Eur Psy/master_data/master_data_phq8_scaled.rds")
 names(data)
 
 data_no_diag <- data[data$mhd.mdd == 0,]
@@ -123,6 +123,49 @@ data$eds_resi <- scale(data$eds_resi)
 
 corr.test(data$su_resi, data$eds_resi)
 
+# ================================================== SEM restrict & purge & binge & TAF Full sample ====================
+## Specify lavaan model
+sem <- ' F1 =~ an.lowest_weight_people_thought + an.gain_weight_afraid_fat + an.not_at_all_dependentcompletely_dependent + an.health_low_weightbmi_negative + an.feel_fat_time_low + an.people_thought_larger_parts
+         F2 =~ icb.weight_control + icb.lowest_weight_control_shape + icb.compensate + icb.exercise 
+         F3 =~ be.ate_regard_short_period + be.regularly_occurring_episodes_binge + be.feel_distressed_overeating_episodes + be.not_at_all_dependentcompletely_dependent + be.regularly_occurring_overeating_episodes + be.binge_eating_distressed_make + be.during_binges 
+         F4 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic
+         
+         F1 ~~ F2
+         F1 ~~ F3
+         F1 ~~ F4
+         
+         F2 ~~ F3
+         F2 ~~ F4
+         
+         F3 ~~ F4'
+
+## Fit the sem model
+fit <- sem(sem, data = data,
+           missing = "fiml")
+
+## Explore the fit
+fit_sum <- summary(fit, fit.measures=TRUE)
+fit_sum$FIT
+
+# Visualize the model
+semPaths(fit, edge.color="black", color = c("lightblue"),
+         intercepts = FALSE, what = "std")
+
+# Extract factor scores
+pred <-predict(fit); pred <- data.frame(pred)
+
+# Create factor variables in the main dataset
+data$F1_restricting <- pred$F1
+data$F2_purging <- pred$F2
+data$F3_bingeing <- pred$F3
+data$F4_SU <- pred$F4
+
+# Scale the factors
+data$F1_restricting <- scale(data$F1_restricting)
+data$F2_purging <- scale(data$F2_purging)
+data$F3_bingeing <- scale(data$F3_bingeing)
+data$F4_SU <- scale(data$F4_SU)
+
 # =============== EDs & TAF No diag ==========
 # ================================================== SEM EDs & TAF No diag ====================
 ## Specify lavaan model
@@ -220,19 +263,62 @@ data_no_diag$F_general <- scale(data_no_diag$F_general)
 data_no_diag$su_resi <- scale(data_no_diag$su_resi)
 data_no_diag$eds_resi <- scale(data_no_diag$eds_resi)
 
+# ================================================== SEM restrict & purge & binge & TAF No diag ====================
+## Specify lavaan model
+sem <- ' F1 =~ an.lowest_weight_people_thought + an.gain_weight_afraid_fat + an.not_at_all_dependentcompletely_dependent + an.health_low_weightbmi_negative + an.feel_fat_time_low + an.people_thought_larger_parts
+         F2 =~ icb.weight_control + icb.lowest_weight_control_shape + icb.compensate + icb.exercise 
+         F3 =~ be.ate_regard_short_period + be.regularly_occurring_episodes_binge + be.feel_distressed_overeating_episodes + be.not_at_all_dependentcompletely_dependent + be.regularly_occurring_overeating_episodes + be.binge_eating_distressed_make + be.during_binges 
+         F4 =~ taf.worth_living_life_thoughts + taf.have_you_contemplated_harming_yourself_ + taf.meant_end_life_pandemic
+         
+         F1 ~~ F2
+         F1 ~~ F3
+         F1 ~~ F4
+         
+         F2 ~~ F3
+         F2 ~~ F4
+         
+         F3 ~~ F4'
+
+## Fit the sem model
+fit <- sem(sem, data = data_no_diag,
+           missing = "fiml")
+
+## Explore the fit
+fit_sum <- summary(fit, fit.measures=TRUE)
+fit_sum$FIT
+
+# Visualize the model
+semPaths(fit, edge.color="black", color = c("lightblue"),
+         intercepts = FALSE, what = "std")
+
+# Extract factor scores
+pred <-predict(fit); pred <- data.frame(pred)
+
+# Create factor variables in the main dataset
+data_no_diag$F1_restricting <- pred$F1
+data_no_diag$F2_purging <- pred$F2
+data_no_diag$F3_bingeing <- pred$F3
+data_no_diag$F4_SU <- pred$F4
+
+# Scale the factors
+data_no_diag$F1_restricting <- scale(data_no_diag$F1_restricting)
+data_no_diag$F2_purging <- scale(data_no_diag$F2_purging)
+data_no_diag$F3_bingeing <- scale(data_no_diag$F3_bingeing)
+data_no_diag$F4_SU <- scale(data_no_diag$F4_SU)
+
 # =============== Write out ==========
-saveRDS(data, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/data_factor_scores_resi_ortho.rds")
-saveRDS(data_no_diag, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/data_factor_scores_no_diag_resi_ortho.rds")
+saveRDS(data, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/data_factor_scores_resi_ortho_1st_rev.rds")
+saveRDS(data_no_diag, "./MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/master_data/data_factor_scores_no_diag_resi_ortho_1st_rev.rds")
 
 # =============== Regress covariates and prepare phenotype files Full sample ==========
 ## Items
 pheno <- data[, c("IID",
                   "dem.dob_age_cop", "cohort",
                   "F1_EFA_SU", "F2_EFA_EDs", 
-                  "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")]
+                  "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")]
 
 ## Read cov data
-cov <- read.table("MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links//cov/GLADv3_EDGIv1_NBRv2_EUR_covariates_1kg_projecting_pcs_batch_array.txt", header=T)
+cov <- read.table("MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/cov/GLADv3_EDGIv1_NBRv2_EUR_covariates_1kg_projecting_pcs_batch_array.txt", header=T)
 
 ## Inspect
 head(pheno)
@@ -242,7 +328,7 @@ head(cov)
 names(pheno) <- c("IID", 
                   "age", "cohort",
                   "F1_EFA_SU", "F2_EFA_EDs", 
-                  "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")
+                  "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")
 
 ## Pheno add FID
 pheno$FID <- pheno$IID
@@ -255,16 +341,16 @@ head(pheno_covs)
 ## Organize columns
 pheno_covs <- pheno_covs[, c("FID", "IID", 
                              "F1_EFA_SU", "F2_EFA_EDs", 
-                             "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi", 
+                             "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi", 
                              "age", "cohort", "Sex", "batch",
                              "pc1", "pc2", "pc3", "pc4", "pc5",
                              "pc6", "pc7", "pc8", "pc9", "pc10")]
 
 ## Regress covariates
 pheno_covs[, c("F1_EFA_SU", "F2_EFA_EDs", 
-               "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")] <- apply(
+               "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")] <- apply(
                  pheno_covs[, c("F1_EFA_SU", "F2_EFA_EDs", 
-                                "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")],
+                                "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")],
                  2,
                  function(x){
                    rstandard(
@@ -282,14 +368,17 @@ pheno_covs[, c("F1_EFA_SU", "F2_EFA_EDs",
 
 ## Write files out
 write.table(pheno_covs[, c("FID", "IID", "F1_EFA_SU", "F2_EFA_EDs", 
-                           "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_resi_ortho.txt", col.names=T, row.names=F, quote=F, sep="\t")
+                           "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_resi_ortho_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
+
+write.table(pheno_covs[, c("FID", "IID", 
+                           "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
 
 # =============== Regress covariates and prepare phenotype files No diag ==========
 ## Items
 pheno_no_diag <- data_no_diag[, c("IID",
-                  "dem.dob_age_cop", "cohort",
-                  "F1_EFA_SU", "F2_EFA_EDs", 
-                  "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")]
+                                  "dem.dob_age_cop", "cohort",
+                                  "F1_EFA_SU", "F2_EFA_EDs", 
+                                  "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")]
 
 ## Read cov data
 cov <- read.table("MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/GWSEM_project/cov/GLADv3_EDGIv1_NBRv2_EUR_covariates_1kg_projecting_pcs_batch_array.txt", header=T)
@@ -300,9 +389,9 @@ head(cov)
 
 ## Rename pheno vars
 names(pheno_no_diag) <- c("IID", 
-                  "age", "cohort",
-                  "F1_EFA_SU", "F2_EFA_EDs", 
-                  "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")
+                          "age", "cohort",
+                          "F1_EFA_SU", "F2_EFA_EDs", 
+                          "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")
 
 ## Pheno add FID
 pheno_no_diag$FID <- pheno_no_diag$IID
@@ -314,35 +403,38 @@ head(pheno_covs_no_diag)
 
 ## Organize columns
 pheno_covs_no_diag <- pheno_covs_no_diag[, c("FID", "IID", 
-                             "F1_EFA_SU", "F2_EFA_EDs", 
-                             "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi", 
-                             "age", "cohort", "Sex", "batch",
-                             "pc1", "pc2", "pc3", "pc4", "pc5",
-                             "pc6", "pc7", "pc8", "pc9", "pc10")]
+                                             "F1_EFA_SU", "F2_EFA_EDs", 
+                                             "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi", 
+                                             "age", "cohort", "Sex", "batch",
+                                             "pc1", "pc2", "pc3", "pc4", "pc5",
+                                             "pc6", "pc7", "pc8", "pc9", "pc10")]
 
 ## Regress covariates
 pheno_covs_no_diag[, c("F1_EFA_SU", "F2_EFA_EDs", 
-               "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")] <- apply(
-                 pheno_covs_no_diag[, c("F1_EFA_SU", "F2_EFA_EDs", 
-                                "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")],
-                 2,
-                 function(x){
-                   rstandard(
-                     lm(
-                       x ~ pheno_covs_no_diag$age + pheno_covs_no_diag$Sex + pheno_covs_no_diag$cohort +
-                         pheno_covs_no_diag$batch + 
-                         pheno_covs_no_diag$pc1 + pheno_covs_no_diag$pc2 + pheno_covs_no_diag$pc3 + pheno_covs_no_diag$pc4 + pheno_covs_no_diag$pc5 +
-                         pheno_covs_no_diag$pc6 + pheno_covs_no_diag$pc7 + pheno_covs_no_diag$pc8 + pheno_covs_no_diag$pc9 + pheno_covs_no_diag$pc10,
-                       na.action=na.exclude
-                     )
-                   )
-                 }	
-               )
+                       "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")] <- apply(
+                         pheno_covs_no_diag[, c("F1_EFA_SU", "F2_EFA_EDs", 
+                                                "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")],
+                         2,
+                         function(x){
+                           rstandard(
+                             lm(
+                               x ~ pheno_covs_no_diag$age + pheno_covs_no_diag$Sex + pheno_covs_no_diag$cohort +
+                                 pheno_covs_no_diag$batch + 
+                                 pheno_covs_no_diag$pc1 + pheno_covs_no_diag$pc2 + pheno_covs_no_diag$pc3 + pheno_covs_no_diag$pc4 + pheno_covs_no_diag$pc5 +
+                                 pheno_covs_no_diag$pc6 + pheno_covs_no_diag$pc7 + pheno_covs_no_diag$pc8 + pheno_covs_no_diag$pc9 + pheno_covs_no_diag$pc10,
+                               na.action=na.exclude
+                             )
+                           )
+                         }	
+                       )
 
 
 ## Write files out
 write.table(pheno_covs_no_diag[, c("FID", "IID", "F1_EFA_SU", "F2_EFA_EDs", 
-                           "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_no_diag_resi_ortho.txt", col.names=T, row.names=F, quote=F, sep="\t")
+                                   "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_no_diag_resi_ortho_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
+
+write.table(pheno_covs_no_diag[, c("FID", "IID", 
+                           "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_no_diag_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
 
 # =============== Sex-specific samples =============== 
 ## Select sexes
@@ -351,10 +443,16 @@ pheno_females <- pheno_covs[pheno_covs$Sex == 2,]
 
 ## Write files out
 write.table(pheno_males[, c("FID", "IID", "F1_EFA_SU", "F2_EFA_EDs", 
-                                   "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_males_resi_ortho.txt", col.names=T, row.names=F, quote=F, sep="\t")
+                            "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_males_resi_ortho_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
+
+write.table(pheno_males[, c("FID", "IID", 
+                           "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_males_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
 
 write.table(pheno_females[, c("FID", "IID", "F1_EFA_SU", "F2_EFA_EDs", 
-                            "F1_restrict", "F2_bi_pu", "F3_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_females_resi_ortho.txt", col.names=T, row.names=F, quote=F, sep="\t")
+                              "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU", "F_general", "su_resi", "eds_resi")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_sem_factor_scores_covs_regressed_females_resi_ortho_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
+
+write.table(pheno_females[, c("FID", "IID", 
+                           "F1_restricting", "F2_purging", "F3_bingeing", "F4_SU")], "MT-BioResource data - Agnieszka_Gidziela - Dokumenty/Agnieszka_Gidziela/Genomic_links/pheno/pheno_females_1st_rev.txt", col.names=T, row.names=F, quote=F, sep="\t")
 
 # ========================= Check N with genotypes ==========
 ## Load the fam file
@@ -434,5 +532,6 @@ both_an_bed <- subset(common_comp, mhd.an == 1 & mhd.bed == 1)
 table(both_an_bed$V5)
 both_bn_bed <- subset(common_comp, mhd.bn == 1 & mhd.bed == 1)
 table(both_bn_bed$V5)
+
 
 
